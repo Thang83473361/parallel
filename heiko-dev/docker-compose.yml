@@ -1,0 +1,228 @@
+version: "3.7"
+services:
+  parallel-dapp:
+    ports:
+      - "8080:80"
+    image: parallelfinance/parallel-dapp:heiko
+    restart: always
+  relaychain-alice:
+    ports:
+      - 9944:9944
+      - 9933:9933
+      - 30333:30333
+    volumes:
+      - relaychain-alice:/data
+    build:
+      context: .
+      dockerfile: relaychain.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/westend-local.json
+      - --validator
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=alice
+      - --alice
+      - --rpc-methods=unsafe
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: &a1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: always
+  relaychain-bob:
+    ports:
+      - 9945:9944
+      - 9934:9933
+      - 30334:30333
+    volumes:
+      - relaychain-bob:/data
+    build:
+      context: .
+      dockerfile: relaychain.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/westend-local.json
+      - --validator
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=bob
+      - --bob
+      - --rpc-methods=unsafe
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: *a1
+    restart: always
+  relaychain-charlie:
+    ports:
+      - 9946:9944
+      - 9935:9933
+      - 30335:30333
+    volumes:
+      - relaychain-charlie:/data
+    build:
+      context: .
+      dockerfile: relaychain.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/westend-local.json
+      - --validator
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=charlie
+      - --charlie
+      - --rpc-methods=unsafe
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: *a1
+    restart: always
+  parachain-2000-0:
+    ports:
+      - 9947:9944
+      - 9936:9933
+      - 30336:30333
+    volumes:
+      - parachain-2000-0:/data
+    build:
+      context: .
+      dockerfile: parachain-2000.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/heiko-dev-2000.json
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=parachain-2000-0
+      - --collator
+      - --parachain-id=2000
+      - --rpc-methods=unsafe
+      - --force-authoring
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --alice
+      - --node-key=61a2ba9ac5c8e2e481f6d36733ce4b1b5fd7685471fc451b53a271cdf8c6f675
+      - --listen-addr=/ip4/0.0.0.0/tcp/30333
+      - --
+      - --chain=/app/westend-local.json
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: *a1
+    restart: always
+  parachain-2000-1:
+    ports:
+      - 9948:9944
+      - 9937:9933
+      - 30337:30333
+    volumes:
+      - parachain-2000-1:/data
+    build:
+      context: .
+      dockerfile: parachain-2000.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/heiko-dev-2000.json
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=parachain-2000-1
+      - --collator
+      - --parachain-id=2000
+      - --rpc-methods=unsafe
+      - --force-authoring
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --bob
+      - --bootnodes=/dns/parachain-2000-0/tcp/30333/p2p/12D3KooWMQNUNpAXyZbGLEkfuNBYKCuq5CRgz8SBfcMjzYUmHeEn
+      - --listen-addr=/ip4/0.0.0.0/tcp/30333
+      - --
+      - --chain=/app/westend-local.json
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: *a1
+    restart: always
+  parachain-2000-2:
+    ports:
+      - 9949:9944
+      - 9938:9933
+      - 30338:30333
+    volumes:
+      - parachain-2000-2:/data
+    build:
+      context: .
+      dockerfile: parachain-2000.Dockerfile
+    command:
+      - --base-path=/data
+      - --chain=/app/heiko-dev-2000.json
+      - --ws-external
+      - --rpc-external
+      - --rpc-cors=all
+      - --name=parachain-2000-2
+      - --collator
+      - --parachain-id=2000
+      - --rpc-methods=unsafe
+      - --force-authoring
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --charlie
+      - --bootnodes=/dns/parachain-2000-0/tcp/30333/p2p/12D3KooWMQNUNpAXyZbGLEkfuNBYKCuq5CRgz8SBfcMjzYUmHeEn
+      - --listen-addr=/ip4/0.0.0.0/tcp/30333
+      - --
+      - --chain=/app/westend-local.json
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    ulimits: *a1
+    restart: always
+  oracle-client:
+    build:
+      context: .
+      dockerfile: oracle-client.Dockerfile
+    command: start -m 12000 -w ws://parachain-2000-0:9944
+    restart: always
+  nominate-client:
+    build:
+      context: .
+      dockerfile: nominate-client.Dockerfile
+    command: --relay-ws ws://relaychain-alice:9944 --para-ws ws://parachain-2000-0:9944 --tick 120000
+    restart: always
+  stake-relay-alice:
+    build:
+      context: .
+      dockerfile: stake-client.Dockerfile
+    command: start-relay -k=/app/alice.json --relay-ws-server=ws://relaychain-alice:9944 --para-ws-server=ws://parachain-2000-0:9944 --relay-pool-addr=5DjYJStmdZ2rcqXbXGX7TW85JsrW6uG4y9MUcLq2BoPMpRA7 --para-pool-addr=5EYCAe5iie3Jms55YSqwGAx8H5Yj4Xv84tWYmdbm1sB1EwtZ --first -p ""
+    restart: always
+  stake-relay-bob:
+    build:
+      context: .
+      dockerfile: stake-client.Dockerfile
+    command: start-relay -k=/app/bob.json --relay-ws-server=ws://relaychain-alice:9944 --para-ws-server=ws://parachain-2000-0:9944 --relay-pool-addr=5DjYJStmdZ2rcqXbXGX7TW85JsrW6uG4y9MUcLq2BoPMpRA7 --para-pool-addr=5EYCAe5iie3Jms55YSqwGAx8H5Yj4Xv84tWYmdbm1sB1EwtZ -p ""
+    restart: always
+  stake-para-alice:
+    build:
+      context: .
+      dockerfile: stake-client.Dockerfile
+    command: start-para -k=/app/alice.json --relay-ws-server=ws://relaychain-alice:9944 --para-ws-server=ws://parachain-2000-0:9944 --para-pool-addr=5EYCAe5iie3Jms55YSqwGAx8H5Yj4Xv84tWYmdbm1sB1EwtZ --first -p ""
+    restart: always
+  stake-para-bob:
+    build:
+      context: .
+      dockerfile: stake-client.Dockerfile
+    command: start-para -k=/app/bob.json --relay-ws-server=ws://relaychain-alice:9944 --para-ws-server=ws://parachain-2000-0:9944 --para-pool-addr=5EYCAe5iie3Jms55YSqwGAx8H5Yj4Xv84tWYmdbm1sB1EwtZ -p ""
+    restart: always
+
+volumes:
+  relaychain-alice:
+  relaychain-bob:
+  relaychain-charlie:
+  parachain-2000-0:
+  parachain-2000-1:
+  parachain-2000-2:
