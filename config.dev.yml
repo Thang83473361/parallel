@@ -19,11 +19,11 @@ relaychain:
 parachains:
   - image: parallelfinance/parallel:latest
     chain:
-      base: heiko
+      base: heiko-dev
       collators:
-        - 5DFScwjDYWMG7oAcotAaWdxnjZKyBd3PvG7QbzMCisEWPquY
-        - 5GEwvVsMiZvLY9TsRYVd9NUuTUuAHCEL7uX1GTrLufXf8pKV
-        - 5EbjqR169aiZibNdzMRMcJGjh8fLyXWtA5RSMJRonpdMjunU
+        - alice
+        - bob
+        - charlie
     id: 2000
     parachain: true
     flags:
@@ -37,8 +37,8 @@ parachains:
       - --no-beefy
     nodes:
       - flags:
-          - --keystore-path=/app/keystore1
+          - --alice
       - flags:
-          - --keystore-path=/app/keystore2
+          - --bob
       - flags:
-          - --keystore-path=/app/keystore3
+          - --charlie
