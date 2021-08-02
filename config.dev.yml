@@ -1,0 +1,44 @@
+relaychain:
+  image: alexcj96/polkadot:v0.9.8
+  chain: westend-local
+  runtimeGenesisConfig:
+    parachainsConfiguration:
+      config:
+        validation_upgrade_frequency: 1
+        validation_upgrade_delay: 1
+  flags:
+    - --rpc-methods=unsafe
+    - --wasm-execution=compiled
+    - --execution=wasm
+    - --no-beefy
+  nodes:
+    - name: alice
+    - name: bob
+    - name: charlie
+
+parachains:
+  - image: parallelfinance/parallel:latest
+    chain:
+      base: heiko-dev
+      collators:
+        - alice
+        - bob
+        - charlie
+    id: 2000
+    parachain: true
+    flags:
+      - --rpc-methods=unsafe
+      - --force-authoring
+      - --wasm-execution=compiled
+      - --execution=wasm
+    relaychainFlags:
+      - --wasm-execution=compiled
+      - --execution=wasm
+      - --no-beefy
+    nodes:
+      - flags:
+          - --alice
+      - flags:
+          - --bob
+      - flags:
+          - --charlie
