@@ -59,6 +59,10 @@ pub fn development_config(id: ParaId) -> ChainSpec {
                 ],
                 vec![get_account_id_from_seed::<sr25519::Public>("Ferdie")],
                 vec![
+                    // Faucet accounts
+                    "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf"
+                        .parse()
+                        .unwrap(),
                     get_account_id_from_seed::<sr25519::Public>("Dave"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
@@ -212,7 +216,7 @@ fn testnet_genesis(
 
                 endowed_accounts
                     .into_iter()
-                    .map(|k| (k, 10_u128.pow(13)))
+                    .map(|k| (k, 10_u128.pow(16)))
                     .collect()
             },
         },
@@ -248,8 +252,8 @@ fn testnet_genesis(
                         .unwrap()
                     {
                         vec![
-                            (x.clone(), CurrencyId::DOT, 10_u128.pow(13)),
-                            (x.clone(), CurrencyId::USDT, 10_u128.pow(15)),
+                            (x.clone(), CurrencyId::DOT, 10_u128.pow(20)),
+                            (x.clone(), CurrencyId::USDT, 10_u128.pow(16)),
                         ]
                     } else {
                         vec![
