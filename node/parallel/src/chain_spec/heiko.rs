@@ -60,6 +60,7 @@ pub fn development_config(id: ParaId) -> ChainSpec {
                 ],
                 vec![get_account_id_from_seed::<sr25519::Public>("Ferdie")],
                 vec![
+                    // Faucet accounts
                     "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf"
                         .parse()
                         .unwrap(),
