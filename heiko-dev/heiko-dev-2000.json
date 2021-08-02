@@ -64,10 +64,6 @@
       "balances": {
         "balances": [
           [
-            "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf",
-            10000000000000000
-          ],
-          [
             "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
             10000000000000000
           ],
@@ -160,16 +156,6 @@
       "auraExt": null,
       "tokens": {
         "balances": [
-          [
-            "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf",
-            "KSM",
-            10000000000000000000000
-          ],
-          [
-            "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf",
-            "USDT",
-            10000000000000000
-          ],
           [
             "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
             "KSM",
