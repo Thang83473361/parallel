@@ -17,7 +17,7 @@ relaychain:
     - name: charlie
 
 parachains:
-  - image: parallelfinance/parallel:latest
+  - image: alexcj96/parallel:latest
     chain:
       base: heiko
       collators:
