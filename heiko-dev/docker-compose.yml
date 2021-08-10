@@ -200,7 +200,7 @@ services:
       dockerfile: stake-client.Dockerfile
     command: start-relay -k=/app/alice.json --relay-ws-server=ws://relaychain-alice:9944 --para-ws-server=ws://parachain-2000-0:9944 --relay-pool-addr=5DjYJStmdZ2rcqXbXGX7TW85JsrW6uG4y9MUcLq2BoPMpRA7 --para-pool-addr=5EYCAe5iie3Jms55YSqwGAx8H5Yj4Xv84tWYmdbm1sB1EwtZ --first -p ""
     environment:
-      RUST_LOG: infor
+      RUST_LOG: info
     restart: always
   stake-relay-bob:
     build:
