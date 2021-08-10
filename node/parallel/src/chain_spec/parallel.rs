@@ -216,7 +216,16 @@ fn testnet_genesis(
 
                 endowed_accounts
                     .into_iter()
-                    .map(|k| (k, 10_u128.pow(16)))
+                    .map(|k| {
+                        if k == &"5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf"
+                            .parse()
+                            .unwrap()
+                        {
+                            (k, 10_u128.pow(20))
+                        } else {
+                            (k, 10_u128.pow(16))
+                        }
+                    })
                     .collect()
             },
         },
@@ -251,15 +260,9 @@ fn testnet_genesis(
                         .parse()
                         .unwrap()
                     {
-                        vec![
-                            (x.clone(), CurrencyId::DOT, 10_u128.pow(20)),
-                            (x.clone(), CurrencyId::USDT, 10_u128.pow(16)),
-                        ]
+                        vec![(x.clone(), CurrencyId::USDT, 10_u128.pow(20))]
                     } else {
-                        vec![
-                            (x.clone(), CurrencyId::DOT, 10_u128.pow(13)),
-                            (x.clone(), CurrencyId::USDT, 10_u128.pow(9)),
-                        ]
+                        vec![(x.clone(), CurrencyId::USDT, 10_u128.pow(9))]
                     }
                 })
                 .collect(),
