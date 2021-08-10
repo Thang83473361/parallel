@@ -217,7 +217,7 @@ fn testnet_genesis(
                 endowed_accounts
                     .into_iter()
                     .map(|k| {
-                        if k == &"5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf"
+                        if k == "5HHMY7e8UAqR5ZaHGaQnRW5EDR8dP7QpAyjeBu6V7vdXxxbf"
                             .parse()
                             .unwrap()
                         {
