@@ -260,7 +260,7 @@ fn testnet_genesis(
                         .parse()
                         .unwrap()
                     {
-                        vec![(x.clone(), CurrencyId::USDT, 10_u128.pow(16))]
+                        vec![(x.clone(), CurrencyId::USDT, 10_u128.pow(20))]
                     } else {
                         vec![(x.clone(), CurrencyId::USDT, 10_u128.pow(9))]
                     }
