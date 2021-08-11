@@ -49,19 +49,8 @@ pub mod weights;
 pub type EraIndex = u32;
 
 #[derive(Encode, Decode)]
-pub enum StakingPalletCall {
-    #[codec(index = 6)]
-    Staking(StakingCall),
-}
-
-#[derive(Encode, Decode)]
-pub enum StakingCall {
-    #[codec(index = 0)]
-    Bond(BondCall),
-}
-
-#[derive(Encode, Decode)]
-pub struct BondCall {
+pub struct StakingBondCall {
+    call_index: [u8; 2],
     controller: AccountId,
     #[codec(compact)]
     value: u128,
@@ -295,11 +284,12 @@ pub mod pallet {
         ) -> DispatchResult {
             let _sender = ensure_signed(origin)?;
 
-            let call = StakingPalletCall::Staking(StakingCall::Bond(BondCall {
+            let call = StakingBondCall {
+                call_index: [6, 0],
                 controller: controller.clone(),
                 value,
                 payee: payee.clone(),
-            }))
+            }
             .encode();
 
             let msg = Transact {
