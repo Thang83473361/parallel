@@ -27,10 +27,7 @@ use frame_system::pallet_prelude::*;
 use orml_traits::XcmTransfer;
 use pallet_staking::RewardDestination;
 use primitives::AccountId;
-use sp_runtime::{
-    traits::{AccountIdConversion},
-    ArithmeticError, FixedPointNumber, RuntimeDebug,
-};
+use sp_runtime::{traits::AccountIdConversion, ArithmeticError, FixedPointNumber, RuntimeDebug};
 use sp_std::convert::TryInto;
 use sp_std::prelude::*;
 use xcm::v0::{Junction, MultiLocation, NetworkId};
@@ -66,6 +63,7 @@ pub enum StakingCall {
 #[derive(Encode, Decode)]
 pub struct BondCall {
     controller: AccountId,
+    #[codec(compact)]
     value: u128,
     payee: RewardDestination<AccountId>,
 }
@@ -287,12 +285,12 @@ pub mod pallet {
         /// used as collateral for lending.
         ///
         /// - `amount`: the amount of staking assets
-        #[pallet::weight(100_001_000)]
+        #[pallet::weight(0)]
         #[transactional]
         pub fn bond(
             origin: OriginFor<T>,
             controller: AccountId,
-            value: Balance,
+            #[pallet::compact] value: Balance,
             payee: RewardDestination<AccountId>,
         ) -> DispatchResult {
             let _sender = ensure_signed(origin)?;
@@ -306,7 +304,7 @@ pub mod pallet {
 
             let msg = Transact {
                 origin_type: OriginKind::SovereignAccount,
-                require_weight_at_most: 100_000_000,
+                require_weight_at_most: 1000_000_000_000,
                 call: call.into(),
             };
 
