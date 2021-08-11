@@ -655,6 +655,7 @@ impl pallet_liquid_staking::Config for Runtime {
     type XcmTransfer = XcmTransferT;
     type Members = IsInVec<()>;
     type BaseXcmWeight = BaseXcmWeight;
+    type XcmSender = ();
 }
 
 parameter_types! {

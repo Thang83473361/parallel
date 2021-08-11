@@ -60,7 +60,7 @@ use frame_system::{
 };
 use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset};
 use polkadot_parachain::primitives::Sibling;
-use primitives::{network::PARALLEL_PREFIX, *};
+use primitives::*;
 use static_assertions::const_assert;
 use xcm::v0::{Junction, Junction::*, MultiAsset, MultiLocation, MultiLocation::*, NetworkId, Xcm};
 use xcm_builder::{
@@ -184,7 +184,7 @@ parameter_types! {
         })
         .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
         .build_or_panic();
-    pub const SS58Prefix: u8 = PARALLEL_PREFIX;
+    pub const SS58Prefix: u8 = 42;
 }
 
 // Configure FRAME pallets to include in runtime.
@@ -395,6 +395,7 @@ impl pallet_liquid_staking::Config for Runtime {
     type XcmTransfer = XTokens;
     type Members = LiquidStakingAgentMembership;
     type BaseXcmWeight = BaseXcmWeight;
+    type XcmSender = XcmRouter;
 }
 
 parameter_types! {

@@ -197,6 +197,7 @@ impl pallet_liquid_staking::Config for Test {
     type XcmTransfer = Currencies;
     type Members = Members;
     type BaseXcmWeight = BaseXcmWeight;
+    type XcmSender = ();
 }
 
 pub struct Members;

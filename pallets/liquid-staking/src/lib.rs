@@ -25,7 +25,12 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::*;
 use orml_traits::XcmTransfer;
-use sp_runtime::{traits::AccountIdConversion, ArithmeticError, FixedPointNumber, RuntimeDebug};
+use pallet_staking::RewardDestination;
+use primitives::AccountId;
+use sp_runtime::{
+    traits::{AccountIdConversion},
+    ArithmeticError, FixedPointNumber, RuntimeDebug,
+};
 use sp_std::convert::TryInto;
 use sp_std::prelude::*;
 use xcm::v0::{Junction, MultiLocation, NetworkId};
@@ -46,6 +51,25 @@ pub mod weights;
 
 pub type EraIndex = u32;
 
+#[derive(Encode, Decode)]
+pub enum StakingPalletCall {
+    #[codec(index = 6)]
+    Staking(StakingCall),
+}
+
+#[derive(Encode, Decode)]
+pub enum StakingCall {
+    #[codec(index = 0)]
+    Bond(BondCall),
+}
+
+#[derive(Encode, Decode)]
+pub struct BondCall {
+    controller: AccountId,
+    value: u128,
+    payee: RewardDestination<AccountId>,
+}
+
 /// Container for pending balance information
 #[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, Default)]
 pub struct UnstakeInfo<BlockNumber> {
@@ -56,6 +80,8 @@ pub struct UnstakeInfo<BlockNumber> {
 
 #[frame_support::pallet]
 pub mod pallet {
+    use xcm::v0::{OriginKind, SendXcm, Xcm::Transact};
+
     use super::*;
 
     #[pallet::pallet]
@@ -109,6 +135,8 @@ pub mod pallet {
 
         /// Base xcm weight to use for cross chain transfer
         type BaseXcmWeight: Get<Weight>;
+
+        type XcmSender: SendXcm;
     }
 
     #[pallet::error]
@@ -129,6 +157,7 @@ pub mod pallet {
         MaxAccountProcessingUnstakeExceeded,
         /// Not approved agent
         IllegalAgent,
+        FailedToSendBondCall,
     }
 
     #[pallet::event]
@@ -148,6 +177,7 @@ pub mod pallet {
         UnstakeProcessed(T::AccountId, T::AccountId, Balance),
         /// The unstake reuqest is under processing by multisig account
         UnstakeProcessing(T::AccountId, T::AccountId, Balance),
+        BondCallSent(AccountId, Balance, RewardDestination<AccountId>),
     }
 
     /// The exchange rate converts staking native token to voucher.
@@ -257,6 +287,41 @@ pub mod pallet {
         /// used as collateral for lending.
         ///
         /// - `amount`: the amount of staking assets
+        #[pallet::weight(100_001_000)]
+        #[transactional]
+        pub fn bond(
+            origin: OriginFor<T>,
+            controller: AccountId,
+            value: Balance,
+            payee: RewardDestination<AccountId>,
+        ) -> DispatchResult {
+            let _sender = ensure_signed(origin)?;
+
+            let call = StakingPalletCall::Staking(StakingCall::Bond(BondCall {
+                controller: controller.clone(),
+                value,
+                payee: payee.clone(),
+            }))
+            .encode();
+
+            let msg = Transact {
+                origin_type: OriginKind::SovereignAccount,
+                require_weight_at_most: 100_000_000,
+                call: call.into(),
+            };
+
+            match T::XcmSender::send_xcm(MultiLocation::X1(Junction::Parent), msg) {
+                Ok(()) => {
+                    Self::deposit_event(Event::<T>::BondCallSent(controller, value, payee));
+                }
+                Err(_e) => {
+                    return Err(Error::<T>::FailedToSendBondCall.into());
+                }
+            }
+
+            Ok(().into())
+        }
+
         #[pallet::weight(T::WeightInfo::stake())]
         #[transactional]
         pub fn stake(origin: OriginFor<T>, amount: Balance) -> DispatchResultWithPostInfo {
