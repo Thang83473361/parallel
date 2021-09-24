@@ -15,7 +15,7 @@ use sp_runtime::{
     traits::{BlakeTwo256, IdentityLookup, One},
 };
 
-use xcm::v0::{Junction, MultiAsset, MultiLocation};
+use xcm::latest::prelude::*;
 
 use primitives::{tokens::*, Balance, Rate, Ratio};
 
@@ -117,12 +117,10 @@ pub type UpdateOrigin = EnsureSignedBy<BobOrigin, AccountId>;
 parameter_types! {
     pub const StakingPalletId: PalletId = PalletId(*b"par/lqsk");
     pub const BaseXcmWeight: Weight = 0;
-    pub const Agent: MultiLocation = MultiLocation::X2(
-        Junction::Parent,
-        Junction::AccountId32 {
-           network: xcm::v0::NetworkId::Any,
-           id: [0; 32]
-    });
+    pub Agent: MultiLocation = MultiLocation::new(1, Junctions::X1(Junction::AccountId32 {
+        network: xcm::v0::NetworkId::Any,
+        id: [0; 32]
+    }));
     pub const PeriodBasis: BlockNumber = 5u64;
 }
 

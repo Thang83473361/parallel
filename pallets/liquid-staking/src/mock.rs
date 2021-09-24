@@ -21,13 +21,7 @@ use sp_runtime::{
     AccountId32,
     MultiAddress::Id,
 };
-pub use xcm::v0::{
-    Error as XcmError,
-    Junction::{self, GeneralKey, Parachain, Parent},
-    MultiAsset,
-    MultiLocation::{self, X1, X2, X3},
-    NetworkId, Xcm,
-};
+pub use xcm::latest::prelude::*;
 pub use xcm_builder::{
     AccountId32Aliases, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom,
     ChildParachainAsNative, ChildParachainConvertsVia, ChildSystemParachainAsSuperuser,
@@ -62,7 +56,7 @@ impl cumulus_pallet_parachain_system::Config for Test {
 impl parachain_info::Config for Test {}
 
 parameter_types! {
-    pub const DotLocation: MultiLocation = MultiLocation::X1(Parent);
+    pub DotLocation: MultiLocation = MuiseLocation::parent();
     pub const RelayNetwork: NetworkId = NetworkId::Kusama;
     pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
     pub Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
@@ -84,7 +78,7 @@ pub type XcmOriginToCallOrigin = (
 
 parameter_types! {
     pub const UnitWeightCost: Weight = 1;
-    pub DotPerSecond: (MultiLocation, u128) = (X1(Parent), 1);
+    pub DotPerSecond: (MultiLocation, u128) = (MultiLocation::parent(), 1);
 }
 
 pub type LocalAssetTransactor = MultiCurrencyAdapter<
@@ -111,12 +105,14 @@ impl Config for XcmConfig {
     type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
     type Trader = FixedRateOfConcreteFungible<DotPerSecond, ()>;
     type ResponseHandler = ();
+    type SubscriptionService = PolkadotXcm;
 }
 
 impl cumulus_pallet_xcmp_queue::Config for Test {
     type Event = Event;
     type XcmExecutor = XcmExecutor<XcmConfig>;
     type ChannelInfo = ParachainSystem;
+    type VersionWrapper = ();
 }
 
 impl cumulus_pallet_dmp_queue::Config for Test {
@@ -149,11 +145,13 @@ pub struct CurrencyIdConvert;
 impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
     fn convert(id: AssetId) -> Option<MultiLocation> {
         match id {
-            DOT => Some(X1(Parent)),
-            XDOT => Some(X3(
-                Parent,
-                Parachain(ParachainInfo::parachain_id().into()),
-                GeneralKey(b"xDOT".to_vec()),
+            DOT => Some(MultiLocation::parent()),
+            XDOT => Some(MuiseLocation::new(
+                1,
+                X2(
+                    Parachain(ParachainInfo::parachain_id().into()),
+                    GeneralKey(b"xDOT".to_vec()),
+                ),
             )),
             _ => None,
         }
@@ -163,10 +161,14 @@ impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
 impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
     fn convert(location: MultiLocation) -> Option<AssetId> {
         match location {
-            X1(Parent) => Some(DOT),
-            X3(Parent, Parachain(id), GeneralKey(key))
-                if ParaId::from(id) == ParachainInfo::parachain_id() && key == b"xDOT".to_vec() =>
-            {
+            MultiLocation {
+                parents: 1,
+                interior: Here,
+            } => Some(DOT),
+            MultiLocation {
+                parents: 1,
+                interior: X2(Parachain(id), GeneralKey(key)),
+            } if ParaId::from(id) == ParachainInfo::parachain_id() && key == b"xDOT".to_vec() => {
                 Some(XDOT)
             }
             _ => None,
@@ -176,7 +178,11 @@ impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
 
 impl Convert<MultiAsset, Option<AssetId>> for CurrencyIdConvert {
     fn convert(a: MultiAsset) -> Option<AssetId> {
-        if let MultiAsset::ConcreteFungible { id, amount: _ } = a {
+        if let MultiAsset {
+            id: AssetId::Concrete(id),
+            fun: _,
+        } = a
+        {
             Self::convert(id)
         } else {
             None
@@ -195,7 +201,7 @@ impl Convert<AccountId, MultiLocation> for AccountIdToMultiLocation {
 }
 
 parameter_types! {
-    pub SelfLocation: MultiLocation = X2(Parent, Parachain(ParachainInfo::parachain_id().into()));
+    pub SelfLocation: MultiLocation = MuiseLocation::new(1, X1(Parachain(ParachainInfo::parachain_id().into())));
     pub const BaseXcmWeight: Weight = 100_000_000;
 }
 
@@ -209,6 +215,7 @@ impl orml_xtokens::Config for Test {
     type XcmExecutor = XcmExecutor<XcmConfig>;
     type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
     type BaseXcmWeight = BaseXcmWeight;
+    type LocationInverter = LocationInverter<Ancestry>;
 }
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;

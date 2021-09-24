@@ -16,7 +16,7 @@ use codec::{Decode, Encode};
 use frame_support::traits::fungibles::{Inspect, Mutate};
 use sp_runtime::{traits::Convert, RuntimeDebug, SaturatedConversion};
 use sp_std::{convert::Into, marker::PhantomData, prelude::*, result};
-use xcm::v0::{Error as XcmError, MultiAsset, MultiLocation, Result as XcmResult};
+use xcm::latest::prelude::*;
 use xcm_executor::traits::{Convert as MoreConvert, MatchesFungible, TransactAsset};
 
 use crate::AssetId;
