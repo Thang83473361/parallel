@@ -756,7 +756,7 @@ pub mod pallet {
             TotalReserves::<T>::insert(asset_id, total_reserves_new);
 
             Self::deposit_event(Event::<T>::ReservesAdded(
-                Self::account_id(),
+                payer,
                 asset_id,
                 add_amount,
                 total_reserves_new,
