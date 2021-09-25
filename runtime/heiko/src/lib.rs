@@ -405,7 +405,8 @@ parameter_types! {
     pub const MetadataDepositPerByte: Balance = deposit(0, 1);
 }
 
-impl pallet_assets::Config for Runtime {
+type AssetsInstance1 = pallet_assets::Instance1;
+impl pallet_assets::Config<AssetsInstance1> for Runtime {
     type Event = Event;
     type Balance = Balance;
     type AssetId = AssetIdentifier;
@@ -1178,7 +1179,7 @@ construct_runtime!(
         Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>} = 3,
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>} = 4,
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage} = 5,
-        Assets: pallet_assets::{Pallet, Call, Storage, Event<T>} = 6,
+        Assets: pallet_assets::<Instance1>::{Pallet, Call, Storage, Event<T>} = 6,
 
         // Governance
         Sudo: pallet_sudo::{Pallet, Call, Storage, Config<T>, Event<T>} = 10,
