@@ -50,8 +50,7 @@ use primitives::{
     currency::{CurrencyId, MultiCurrencyAdapter},
     network::HEIKO_PREFIX,
     tokens::{KSM, XKSM},
-    AccountId, AssetId as AssetIdentifier, AuraId, Balance, DataProviderId, Index, Liquidity,
-    Shortfall,
+    Index, *,
 };
 use sp_api::impl_runtime_apis;
 use sp_core::{
@@ -353,7 +352,7 @@ impl Convert<MultiLocation, Option<AssetIdentifier>> for CurrencyIdConvert {
 impl Convert<MultiAsset, Option<AssetIdentifier>> for CurrencyIdConvert {
     fn convert(a: MultiAsset) -> Option<AssetIdentifier> {
         if let MultiAsset {
-            id: AssetIdentifier::Concrete(id),
+            id: AssetId::Concrete(id),
             fun: _,
         } = a
         {
@@ -409,7 +408,7 @@ parameter_types! {
 impl pallet_assets::Config for Runtime {
     type Event = Event;
     type Balance = Balance;
-    type AssetIdentifier = AssetIdentifier;
+    type AssetId = AssetIdentifier;
     type Currency = Balances;
     type ForceOrigin = EnsureRootOrMoreThanHalfGeneralCouncil;
     type AssetDeposit = AssetDeposit;
@@ -435,8 +434,8 @@ impl pallet_loans::Config for Runtime {
 
 parameter_types! {
     pub const StakingPalletId: PalletId = PalletId(*b"par/lqsk");
-    pub RelayAgent: MultiLocation = MuiseLocation::new(
-        1
+    pub RelayAgent: MultiLocation = MultiLocation::new(
+        1,
         X1(AccountId32{
             network: NetworkId::Any,
             // Dave
@@ -807,7 +806,7 @@ pub struct ToTreasury;
 impl TakeRevenue for ToTreasury {
     fn take_revenue(revenue: MultiAsset) {
         if let MultiAsset {
-            id: MultiAssetIdentifier::Concrete(id),
+            id: AssetId::Concrete(id),
             fun: Fungibility::Fungible(amount),
         } = revenue
         {
@@ -1160,35 +1159,31 @@ pub struct Adapter<AccountId> {
 }
 
 impl Inspect<AccountId> for Adapter<AccountId> {
-    type AssetIdentifier = CurrencyId;
+    type AssetId = CurrencyId;
     type Balance = Balance;
 
-    fn total_issuance(asset: Self::AssetIdentifier) -> Self::Balance {
+    fn total_issuance(asset: Self::AssetId) -> Self::Balance {
         match asset {
             CurrencyId::Native => Balances::total_issuance(),
             CurrencyId::Asset(asset_id) => Assets::total_issuance(asset_id),
         }
     }
 
-    fn balance(asset: Self::AssetIdentifier, who: &AccountId) -> Self::Balance {
+    fn balance(asset: Self::AssetId, who: &AccountId) -> Self::Balance {
         match asset {
             CurrencyId::Native => Balances::balance(who),
             CurrencyId::Asset(asset_id) => Assets::balance(asset_id, who),
         }
     }
 
-    fn minimum_balance(asset: Self::AssetIdentifier) -> Self::Balance {
+    fn minimum_balance(asset: Self::AssetId) -> Self::Balance {
         match asset {
             CurrencyId::Native => Balances::minimum_balance(),
             CurrencyId::Asset(asset_id) => Assets::minimum_balance(asset_id),
         }
     }
 
-    fn reducible_balance(
-        asset: Self::AssetIdentifier,
-        who: &AccountId,
-        keep_alive: bool,
-    ) -> Self::Balance {
+    fn reducible_balance(asset: Self::AssetId, who: &AccountId, keep_alive: bool) -> Self::Balance {
         match asset {
             CurrencyId::Native => Balances::reducible_balance(who, keep_alive),
             CurrencyId::Asset(asset_id) => Assets::reducible_balance(asset_id, who, keep_alive),
@@ -1196,7 +1191,7 @@ impl Inspect<AccountId> for Adapter<AccountId> {
     }
 
     fn can_deposit(
-        asset: Self::AssetIdentifier,
+        asset: Self::AssetId,
         who: &AccountId,
         amount: Self::Balance,
     ) -> DepositConsequence {
@@ -1207,7 +1202,7 @@ impl Inspect<AccountId> for Adapter<AccountId> {
     }
 
     fn can_withdraw(
-        asset: Self::AssetIdentifier,
+        asset: Self::AssetId,
         who: &AccountId,
         amount: Self::Balance,
     ) -> WithdrawConsequence<Self::Balance> {
@@ -1219,11 +1214,7 @@ impl Inspect<AccountId> for Adapter<AccountId> {
 }
 
 impl Mutate<AccountId> for Adapter<AccountId> {
-    fn mint_into(
-        asset: Self::AssetIdentifier,
-        who: &AccountId,
-        amount: Self::Balance,
-    ) -> DispatchResult {
+    fn mint_into(asset: Self::AssetId, who: &AccountId, amount: Self::Balance) -> DispatchResult {
         match asset {
             CurrencyId::Native => Balances::mint_into(who, amount),
             CurrencyId::Asset(asset_id) => Assets::mint_into(asset_id, who, amount),
@@ -1231,7 +1222,7 @@ impl Mutate<AccountId> for Adapter<AccountId> {
     }
 
     fn burn_from(
-        asset: Self::AssetIdentifier,
+        asset: Self::AssetId,
         who: &AccountId,
         amount: Balance,
     ) -> Result<Balance, DispatchError> {
@@ -1247,7 +1238,7 @@ where
     Assets: Transfer<AccountId>,
 {
     fn transfer(
-        asset: Self::AssetIdentifier,
+        asset: Self::AssetId,
         source: &AccountId,
         dest: &AccountId,
         amount: Self::Balance,

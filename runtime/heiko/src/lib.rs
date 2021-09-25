@@ -62,7 +62,7 @@ use primitives::{
     currency::MultiCurrencyAdapter,
     network::HEIKO_PREFIX,
     tokens::{KSM, XKSM},
-    AccountId, AssetId as AssetIdentifier, AuraId, Balance, DataProviderId, Index,
+    Index, *,
 };
 use xcm::latest::prelude::*;
 use xcm_builder::{
@@ -320,8 +320,8 @@ parameter_types! {
 }
 
 pub struct CurrencyIdConvert;
-impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
-    fn convert(id: AssetId) -> Option<MultiLocation> {
+impl Convert<AssetIdentifier, Option<MultiLocation>> for CurrencyIdConvert {
+    fn convert(id: AssetIdentifier) -> Option<MultiLocation> {
         match id {
             KSM => Some(MultiLocation::parent()),
             XKSM => Some(MultiLocation::new(
@@ -336,8 +336,8 @@ impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
     }
 }
 
-impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
-    fn convert(location: MultiLocation) -> Option<AssetId> {
+impl Convert<MultiLocation, Option<AssetIdentifier>> for CurrencyIdConvert {
+    fn convert(location: MultiLocation) -> Option<AssetIdentifier> {
         match location {
             MultiLocation {
                 parents: 1,
@@ -354,11 +354,11 @@ impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
     }
 }
 
-impl Convert<MultiAsset, Option<AssetId>> for CurrencyIdConvert {
-    fn convert(a: MultiAsset) -> Option<AssetId> {
+impl Convert<MultiAsset, Option<AssetIdentifier>> for CurrencyIdConvert {
+    fn convert(a: MultiAsset) -> Option<AssetIdentifier> {
         if let MultiAsset {
             id: AssetId::Concrete(id),
-            fun: Fungibility::Fungible(amount),
+            fun: Fungibility::Fungible(_amount),
         } = a
         {
             Self::convert(id)
@@ -386,7 +386,7 @@ parameter_types! {
 impl orml_xtokens::Config for Runtime {
     type Event = Event;
     type Balance = Balance;
-    type CurrencyId = AssetId;
+    type CurrencyId = AssetIdentifier;
     type CurrencyIdConvert = CurrencyIdConvert;
     type AccountIdToMultiLocation = AccountIdToMultiLocation;
     type SelfLocation = SelfLocation;
@@ -413,7 +413,7 @@ parameter_types! {
 impl pallet_assets::Config for Runtime {
     type Event = Event;
     type Balance = Balance;
-    type AssetId = AssetId;
+    type AssetId = AssetIdentifier;
     type Currency = Balances;
     type ForceOrigin = EnsureRootOrMoreThanHalfGeneralCouncil;
     type AssetDeposit = AssetDeposit;
@@ -758,7 +758,7 @@ parameter_types! {
     pub const RelayNetwork: NetworkId = NetworkId::Kusama;
     pub HeikoNetwork: NetworkId = NetworkId::Named("heiko".into());
     pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
-    pub Ancestry: MultiLocation =  MuiseLocation::new(0, X1(Parachain(ParachainInfo::parachain_id().into())));
+    pub Ancestry: MultiLocation =  MultiLocation::new(0, X1(Parachain(ParachainInfo::parachain_id().into())));
 }
 
 /// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -778,7 +778,7 @@ pub type LocalAssetTransactor = MultiCurrencyAdapter<
     // Use this currency:
     Assets,
     // Use this currency when it is a fungible asset matching the given location or name:
-    IsNativeConcrete<AssetId, CurrencyIdConvert>,
+    IsNativeConcrete<AssetIdentifier, CurrencyIdConvert>,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
     // Do a simple punn to convert an AccountId32 MultiLocation into a native chain account ID:
@@ -871,7 +871,7 @@ impl orml_oracle::Config<ParallelDataProvider> for Runtime {
     type CombineData =
         orml_oracle::DefaultCombineData<Runtime, MinimumCount, ExpiresIn, ParallelDataProvider>;
     type Time = Timestamp;
-    type OracleKey = AssetId;
+    type OracleKey = AssetIdentifier;
     type OracleValue = Price;
     type RootOperatorAccountId = ZeroAccountId;
     type MaxHasDispatchedSize = MaxHasDispatchedSize;
@@ -881,25 +881,25 @@ impl orml_oracle::Config<ParallelDataProvider> for Runtime {
 
 pub type TimeStampedPrice = orml_oracle::TimestampedValue<Price, Moment>;
 pub struct AggregatedDataProvider;
-impl DataProvider<AssetId, TimeStampedPrice> for AggregatedDataProvider {
-    fn get(key: &AssetId) -> Option<TimeStampedPrice> {
+impl DataProvider<AssetIdentifier, TimeStampedPrice> for AggregatedDataProvider {
+    fn get(key: &AssetIdentifier) -> Option<TimeStampedPrice> {
         Oracle::get(key)
     }
 }
 
-impl DataProviderExtended<AssetId, TimeStampedPrice> for AggregatedDataProvider {
-    fn get_no_op(key: &AssetId) -> Option<TimeStampedPrice> {
+impl DataProviderExtended<AssetIdentifier, TimeStampedPrice> for AggregatedDataProvider {
+    fn get_no_op(key: &AssetIdentifier) -> Option<TimeStampedPrice> {
         Oracle::get_no_op(key)
     }
 
-    fn get_all_values() -> Vec<(AssetId, Option<TimeStampedPrice>)> {
+    fn get_all_values() -> Vec<(AssetIdentifier, Option<TimeStampedPrice>)> {
         Oracle::get_all_values()
     }
 }
 
 pub struct Decimal;
 impl DecimalProvider for Decimal {
-    fn get_decimal(asset_id: &AssetId) -> u8 {
+    fn get_decimal(asset_id: &AssetIdentifier) -> u8 {
         // TODO should find a way, get decimal from pallet_assets
         // pallet_assets::Metadata::<Runtime>::get(asset_id).decimals
         match *asset_id {
@@ -1373,16 +1373,16 @@ impl_runtime_apis! {
     impl orml_oracle_rpc_runtime_api::OracleApi<
         Block,
         DataProviderId,
-        AssetId,
+        AssetIdentifier,
         TimeStampedPrice,
     > for Runtime {
-        fn get_value(provider_id: DataProviderId, key: AssetId) -> Option<TimeStampedPrice> {
+        fn get_value(provider_id: DataProviderId, key: AssetIdentifier) -> Option<TimeStampedPrice> {
             match provider_id {
                 DataProviderId::Aggregated => Prices::get_no_op(&key)
             }
         }
 
-        fn get_all_values(provider_id: DataProviderId) -> Vec<(AssetId, Option<TimeStampedPrice>)> {
+        fn get_all_values(provider_id: DataProviderId) -> Vec<(AssetIdentifier, Option<TimeStampedPrice>)> {
             match provider_id {
                 DataProviderId::Aggregated => Prices::get_all_values()
             }

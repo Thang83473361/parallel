@@ -23,7 +23,7 @@ type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 type BlockNumber = u64;
 type AccountId = u64;
-type AssetId = u32;
+type AssetIdentifier = u32;
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
@@ -84,7 +84,7 @@ parameter_types! {
 impl pallet_assets::Config for Test {
     type Event = Event;
     type Balance = Balance;
-    type AssetId = AssetId;
+    type AssetId = AssetIdentifier;
     type Currency = Balances;
     type ForceOrigin = EnsureRoot<AccountId>;
     type AssetDeposit = AssetDeposit;
@@ -154,10 +154,10 @@ pub const ALICE: AccountId = 1u64;
 pub const BOB: AccountId = 2u64;
 
 pub struct MockXcmTransfer;
-impl XcmTransfer<AccountId, Balance, AssetId> for MockXcmTransfer {
+impl XcmTransfer<AccountId, Balance, AssetIdentifier> for MockXcmTransfer {
     fn transfer(
         _who: AccountId,
-        _currency_id: AssetId,
+        _currency_id: AssetIdentifier,
         _amount: Balance,
         _to: MultiLocation,
         _dest_weight: Weight,

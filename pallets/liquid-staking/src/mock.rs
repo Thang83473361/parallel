@@ -34,7 +34,7 @@ use xcm_executor::{Config, XcmExecutor};
 use xcm_simulator::{decl_test_network, decl_test_parachain, decl_test_relay_chain};
 
 pub type AccountId = AccountId32;
-pub type AssetId = u32;
+pub type AssetIdentifier = u32;
 pub use westend_runtime;
 
 parameter_types! {
@@ -56,7 +56,7 @@ impl cumulus_pallet_parachain_system::Config for Test {
 impl parachain_info::Config for Test {}
 
 parameter_types! {
-    pub DotLocation: MultiLocation = MuiseLocation::parent();
+    pub DotLocation: MultiLocation = MultiLocation::parent();
     pub const RelayNetwork: NetworkId = NetworkId::Kusama;
     pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
     pub Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
@@ -83,7 +83,7 @@ parameter_types! {
 
 pub type LocalAssetTransactor = MultiCurrencyAdapter<
     Assets,
-    IsNativeConcrete<AssetId, CurrencyIdConvert>,
+    IsNativeConcrete<AssetIdentifier, CurrencyIdConvert>,
     AccountId,
     LocationToAccountId,
     CurrencyIdConvert,
@@ -142,11 +142,11 @@ impl pallet_xcm::Config for Test {
 }
 
 pub struct CurrencyIdConvert;
-impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
-    fn convert(id: AssetId) -> Option<MultiLocation> {
+impl Convert<AssetIdentifier, Option<MultiLocation>> for CurrencyIdConvert {
+    fn convert(id: AssetIdentifier) -> Option<MultiLocation> {
         match id {
             DOT => Some(MultiLocation::parent()),
-            XDOT => Some(MuiseLocation::new(
+            XDOT => Some(MultiLocation::new(
                 1,
                 X2(
                     Parachain(ParachainInfo::parachain_id().into()),
@@ -158,8 +158,8 @@ impl Convert<AssetId, Option<MultiLocation>> for CurrencyIdConvert {
     }
 }
 
-impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
-    fn convert(location: MultiLocation) -> Option<AssetId> {
+impl Convert<MultiLocation, Option<AssetIdentifier>> for CurrencyIdConvert {
+    fn convert(location: MultiLocation) -> Option<AssetIdentifier> {
         match location {
             MultiLocation {
                 parents: 1,
@@ -176,8 +176,8 @@ impl Convert<MultiLocation, Option<AssetId>> for CurrencyIdConvert {
     }
 }
 
-impl Convert<MultiAsset, Option<AssetId>> for CurrencyIdConvert {
-    fn convert(a: MultiAsset) -> Option<AssetId> {
+impl Convert<MultiAsset, Option<AssetIdentifier>> for CurrencyIdConvert {
+    fn convert(a: MultiAsset) -> Option<AssetIdentifier> {
         if let MultiAsset {
             id: AssetId::Concrete(id),
             fun: _,
@@ -201,14 +201,14 @@ impl Convert<AccountId, MultiLocation> for AccountIdToMultiLocation {
 }
 
 parameter_types! {
-    pub SelfLocation: MultiLocation = MuiseLocation::new(1, X1(Parachain(ParachainInfo::parachain_id().into())));
+    pub SelfLocation: MultiLocation = MultiLocation::new(1, X1(Parachain(ParachainInfo::parachain_id().into())));
     pub const BaseXcmWeight: Weight = 100_000_000;
 }
 
 impl orml_xtokens::Config for Test {
     type Event = Event;
     type Balance = Balance;
-    type CurrencyId = AssetId;
+    type CurrencyId = AssetIdentifier;
     type CurrencyIdConvert = CurrencyIdConvert;
     type AccountIdToMultiLocation = AccountIdToMultiLocation;
     type SelfLocation = SelfLocation;
@@ -336,7 +336,7 @@ parameter_types! {
 impl pallet_assets::Config for Test {
     type Event = Event;
     type Balance = Balance;
-    type AssetId = AssetId;
+    type AssetId = AssetIdentifier;
     type Currency = Balances;
     type ForceOrigin = EnsureRoot<AccountId>;
     type AssetDeposit = AssetDeposit;

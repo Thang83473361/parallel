@@ -11,9 +11,9 @@ use frame_system::{self, RawOrigin as SystemOrigin};
 use sp_std::prelude::*;
 
 const SEED: u32 = 0;
-const DOT: AssetId = 0;
-const KSM: AssetId = 1;
-const UNKNOWN: AssetId = 5;
+const DOT: AssetIdentifier = 0;
+const KSM: AssetIdentifier = 1;
+const UNKNOWN: AssetIdentifier = 5;
 
 const MARKET_MOCK: Market = Market {
     close_factor: Ratio::from_percent(50),

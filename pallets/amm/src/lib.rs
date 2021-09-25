@@ -55,11 +55,11 @@ pub mod pallet {
     use super::*;
     use frame_support::traits::tokens::fungibles;
     use frame_system::ensure_root;
-    use primitives::AssetId;
+    use primitives::AssetIdentifier;
 
     #[pallet::config]
     pub trait Config<I: 'static = ()>:
-        frame_system::Config + pallet_assets::Config<AssetId = AssetId, Balance = Balance>
+        frame_system::Config + pallet_assets::Config<AssetId = AssetIdentifier, Balance = Balance>
     {
         type Event: From<Event<Self, I>> + IsType<<Self as frame_system::Config>::Event>;
 

@@ -19,7 +19,7 @@ use sp_std::{convert::Into, marker::PhantomData, prelude::*, result};
 use xcm::latest::prelude::*;
 use xcm_executor::traits::{Convert as MoreConvert, MatchesFungible, TransactAsset};
 
-use crate::AssetId;
+use crate::AssetIdentifier;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
@@ -111,5 +111,5 @@ impl<
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize, Hash))]
 pub enum CurrencyId {
     Native,
-    Asset(AssetId),
+    Asset(AssetIdentifier),
 }

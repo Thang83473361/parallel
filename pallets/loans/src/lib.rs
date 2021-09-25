@@ -35,7 +35,9 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::*;
 pub use pallet::*;
-use primitives::{AssetId, Liquidity, Price, PriceFeeder, Rate, Ratio, Shortfall, Timestamp};
+use primitives::{
+    AssetIdentifier, Liquidity, Price, PriceFeeder, Rate, Ratio, Shortfall, Timestamp,
+};
 use sp_runtime::{
     traits::{
         AccountIdConversion, AtLeast32BitUnsigned, CheckedAdd, CheckedDiv, CheckedMul, CheckedSub,
@@ -128,7 +130,7 @@ pub mod pallet {
         /// Currency's oracle price not ready
         PriceOracleNotReady,
         /// Invalid asset id
-        InvalidAssetId,
+        InvalidAssetIdentifier,
         /// Market does not exist
         MarketDoesNotExist,
         /// Market already exists
@@ -139,7 +141,7 @@ pub mod pallet {
 
     #[pallet::event]
     #[pallet::generate_deposit(pub (crate) fn deposit_event)]
-    #[pallet::metadata(T::AccountId = "AccountId", AssetIdOf<T> = "AssetId", BalanceOf<T> = "Balance")]
+    #[pallet::metadata(T::AccountId = "AccountId", AssetIdOf<T> = "AssetIdentifier", BalanceOf<T> = "Balance")]
     pub enum Event<T: Config> {
         /// Enable collateral for certain asset
         /// [sender, asset_id]
@@ -196,21 +198,21 @@ pub mod pallet {
         StorageMap<_, Blake2_128Concat, AssetIdOf<T>, BalanceOf<T>, ValueQuery>;
 
     /// Total amount of outstanding borrows of the underlying in this market
-    /// AssetId -> Balance
+    /// AssetIdentifier -> Balance
     #[pallet::storage]
     #[pallet::getter(fn total_borrows)]
     pub type TotalBorrows<T: Config> =
         StorageMap<_, Blake2_128Concat, AssetIdOf<T>, BalanceOf<T>, ValueQuery>;
 
     /// Total amount of reserves of the underlying held in this market
-    /// AssetId -> Balance
+    /// AssetIdentifier -> Balance
     #[pallet::storage]
     #[pallet::getter(fn total_reserves)]
     pub type TotalReserves<T: Config> =
         StorageMap<_, Blake2_128Concat, AssetIdOf<T>, BalanceOf<T>, ValueQuery>;
 
     /// Mapping of account addresses to outstanding borrow balances
-    /// AssetId -> Owner -> BorrowSnapshot
+    /// AssetIdentifier -> Owner -> BorrowSnapshot
     #[pallet::storage]
     #[pallet::getter(fn account_borrows)]
     pub type AccountBorrows<T: Config> = StorageDoubleMap<
@@ -238,7 +240,7 @@ pub mod pallet {
     >;
 
     /// Mapping of account addresses to total deposit interest accrual
-    /// AssetId -> Owner -> EarnedSnapshot
+    /// AssetIdentifier -> Owner -> EarnedSnapshot
     #[pallet::storage]
     #[pallet::getter(fn account_earned)]
     pub type AccountEarned<T: Config> = StorageDoubleMap<
@@ -252,7 +254,7 @@ pub mod pallet {
     >;
 
     /// Accumulator of the total earned interest rate since the opening of the market
-    /// AssetId -> u128
+    /// AssetIdentifier -> u128
     #[pallet::storage]
     #[pallet::getter(fn borrow_index)]
     pub type BorrowIndex<T: Config> =
@@ -291,7 +293,7 @@ pub mod pallet {
         pub borrow_index: Rate,
         pub exchange_rate: Rate,
         pub last_block_timestamp: Timestamp,
-        pub markets: Vec<(AssetId, Market)>,
+        pub markets: Vec<(AssetIdentifier, Market)>,
     }
 
     #[cfg(feature = "std")]
@@ -1277,9 +1279,9 @@ where
     }
 
     pub fn get_price(asset_id: AssetIdOf<T>) -> Result<Price, DispatchError> {
-        let id: AssetId = asset_id
+        let id: AssetIdentifier = asset_id
             .try_into()
-            .map_err(|_| Error::<T>::InvalidAssetId)?;
+            .map_err(|_| Error::<T>::InvalidAssetIdentifier)?;
         let (price, _) = T::PriceFeeder::get_price(&id).ok_or(Error::<T>::PriceOracleNotReady)?;
         if price.is_zero() {
             return Err(Error::<T>::PriceOracleNotReady.into());
