@@ -75,11 +75,10 @@ use primitives::{
 use hex_literal::hex;
 use xcm::latest::prelude::*;
 use xcm_builder::{
-    AccountId32Aliases, AllowTopLevelPaidExecutionFrom, EnsureXcmOrigin,
-    FixedRateOfConcreteFungible, FixedWeightBounds, LocationInverter, ParentAsSuperuser,
-    ParentIsDefault, RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
-    SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeRevenue,
-    TakeWeightCredit,
+    AccountId32Aliases, AllowTopLevelPaidExecutionFrom, EnsureXcmOrigin, FixedRateOfFungible,
+    FixedWeightBounds, LocationInverter, ParentAsSuperuser, ParentIsDefault, RelayChainAsNative,
+    SiblingParachainAsNative, SiblingParachainConvertsVia, SignedAccountId32AsNative,
+    SignedToAccountId32, SovereignSignedViaLocation, TakeRevenue, TakeWeightCredit,
 };
 use xcm_executor::{Config, XcmExecutor};
 pub mod constants;
@@ -812,7 +811,7 @@ pub type XcmOriginToTransactDispatchOrigin = (
 
 parameter_types! {
     pub UnitWeightCost: Weight = 20_000_000;
-    pub DotPerSecond: (MultiLocation, u128) = (MultiLocation::parent(), dot_per_second());
+    pub DotPerSecond: (AssetId, u128) = (AssetId::Concrete(MultiLocation::parent()), dot_per_second());
 }
 
 parameter_types! {
@@ -852,7 +851,7 @@ impl Config for XcmConfig {
     type LocationInverter = LocationInverter<Ancestry>;
     type Barrier = Barrier;
     type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
-    type Trader = FixedRateOfConcreteFungible<DotPerSecond, ToTreasury>;
+    type Trader = FixedRateOfFungible<DotPerSecond, ToTreasury>;
     type ResponseHandler = (); // Don't handle responses for now.
     type SubscriptionService = PolkadotXcm;
 }

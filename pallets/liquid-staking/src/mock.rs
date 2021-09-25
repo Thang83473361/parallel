@@ -25,9 +25,9 @@ pub use xcm::latest::prelude::*;
 pub use xcm_builder::{
     AccountId32Aliases, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom,
     ChildParachainAsNative, ChildParachainConvertsVia, ChildSystemParachainAsSuperuser,
-    CurrencyAdapter as XcmCurrencyAdapter, EnsureXcmOrigin, FixedRateOfConcreteFungible,
-    FixedWeightBounds, IsConcrete, LocationInverter, NativeAsset, ParentAsSuperuser,
-    ParentIsDefault, RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
+    CurrencyAdapter as XcmCurrencyAdapter, EnsureXcmOrigin, FixedRateOfFungible, FixedWeightBounds,
+    IsConcrete, LocationInverter, NativeAsset, ParentAsSuperuser, ParentIsDefault,
+    RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
     SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
 };
 use xcm_executor::{Config, XcmExecutor};
@@ -78,7 +78,7 @@ pub type XcmOriginToCallOrigin = (
 
 parameter_types! {
     pub const UnitWeightCost: Weight = 1;
-    pub DotPerSecond: (MultiLocation, u128) = (MultiLocation::parent(), 1);
+    pub DotPerSecond: (AssetId, u128) = (AssetId::Concrete(MultiLocation::parent()), 1);
 }
 
 pub type LocalAssetTransactor = MultiCurrencyAdapter<
@@ -103,7 +103,7 @@ impl Config for XcmConfig {
     type LocationInverter = LocationInverter<Ancestry>;
     type Barrier = Barrier;
     type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
-    type Trader = FixedRateOfConcreteFungible<DotPerSecond, ()>;
+    type Trader = FixedRateOfFungible<DotPerSecond, ()>;
     type ResponseHandler = ();
     type SubscriptionService = PolkadotXcm;
 }
