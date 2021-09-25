@@ -158,8 +158,8 @@ parameter_types! {
 type AssetsInstance = pallet_assets::Instance1;
 impl pallet_assets::Config<AssetsInstance> for Test {
     type Event = Event;
-    type Balance = u128;
-    type AssetId = u32;
+    type Balance = Balance;
+    type AssetId = AssetIdentifier;
     type Currency = Balances;
     type ForceOrigin = EnsureRoot<AccountId>;
     type AssetDeposit = AssetDeposit;
