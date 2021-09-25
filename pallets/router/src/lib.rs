@@ -44,7 +44,7 @@ pub mod pallet {
         ensure_signed,
         pallet_prelude::{BlockNumberFor, OriginFor},
     };
-    use primitives::{currency::CurrencyId, AssetId, Balance, AMM};
+    use primitives::{currency::CurrencyId, AssetIdentifier, Balance, AMM};
     use sp_runtime::traits::Zero;
 
     pub type Route<T, I> = BoundedVec<
@@ -60,7 +60,7 @@ pub mod pallet {
     #[pallet::config]
     pub trait Config<I: 'static = ()>:
         frame_system::Config
-        + pallet_assets::Config<AssetId = AssetId, Balance = Balance>
+        + pallet_assets::Config<AssetId = AssetIdentifier, Balance = Balance>
         + pallet_amm::Config
     {
         type Event: From<Event<Self, I>> + IsType<<Self as frame_system::Config>::Event>;
