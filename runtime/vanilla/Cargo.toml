@@ -79,7 +79,6 @@ parachain-info                  = { git = 'https://github.com/paritytech/cumulus
 orml-oracle                 = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
 orml-oracle-rpc-runtime-api = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
 orml-traits                 = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
-orml-unknown-tokens         = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
 orml-utilities              = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
 orml-vesting                = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
 orml-xcm                    = { git = 'https://github.com/open-web3-stack/open-runtime-module-library.git', branch = 'sw/xcm-v1', default-features = false }
@@ -184,7 +183,6 @@ std                = [
   'pallet-authorship/std',
   'pallet-collator-selection/std',
   'cumulus-primitives-timestamp/std',
-  'orml-unknown-tokens/std',
   'orml-xcm-support/std',
   'orml-xtokens/std',
   'orml-xcm/std',
@@ -214,7 +212,6 @@ try-runtime        = [
   'pallet-session/try-runtime',
   'pallet-assets/try-runtime',
   'pallet-authorship/try-runtime',
-  'orml-unknown-tokens/try-runtime',
   'orml-xtokens/try-runtime',
   'orml-xcm/try-runtime',
   'orml-vesting/try-runtime',

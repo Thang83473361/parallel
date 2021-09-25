@@ -395,10 +395,6 @@ impl orml_xtokens::Config for Runtime {
     type LocationInverter = LocationInverter<Ancestry>;
 }
 
-impl orml_unknown_tokens::Config for Runtime {
-    type Event = Event;
-}
-
 parameter_types! {
     pub const AssetDeposit: Balance = DOLLARS; // 1 UNIT deposit to create asset
     pub const ApprovalDeposit: Balance = EXISTENTIAL_DEPOSIT;
@@ -1210,7 +1206,6 @@ construct_runtime!(
         // 3rd Party
         Oracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Event<T>} = 42,
         XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 43,
-        UnknownTokens: orml_unknown_tokens::{Pallet, Storage, Event} = 44,
         OrmlXcm: orml_xcm::{Pallet, Call, Event<T>} = 45,
         Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 46,
 

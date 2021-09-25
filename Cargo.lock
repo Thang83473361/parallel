@@ -2931,7 +2931,6 @@ dependencies = [
  "orml-oracle",
  "orml-oracle-rpc-runtime-api",
  "orml-traits",
- "orml-unknown-tokens",
  "orml-utilities",
  "orml-vesting",
  "orml-xcm",
@@ -5022,20 +5021,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "orml-unknown-tokens"
-version = "0.4.1-dev"
-source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=sw/xcm-v1#f1353021595525f8faa0c860e14da59afb200118"
-dependencies = [
- "frame-support",
- "frame-system",
- "orml-xcm-support",
- "parity-scale-codec",
- "serde",
- "sp-std",
- "xcm",
-]
-
-[[package]]
 name = "orml-utilities"
 version = "0.4.1-dev"
 source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=sw/xcm-v1#f1353021595525f8faa0c860e14da59afb200118"
@@ -6232,7 +6217,6 @@ dependencies = [
  "orml-oracle",
  "orml-oracle-rpc-runtime-api",
  "orml-traits",
- "orml-unknown-tokens",
  "orml-utilities",
  "orml-vesting",
  "orml-xcm",
@@ -11829,7 +11813,6 @@ dependencies = [
  "orml-oracle",
  "orml-oracle-rpc-runtime-api",
  "orml-traits",
- "orml-unknown-tokens",
  "orml-utilities",
  "orml-vesting",
  "orml-xcm",
